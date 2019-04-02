@@ -1,0 +1,70 @@
+<div class="container-fluid">
+
+  <h1 class="text-center">Seleccion de Asignaturas</h1>
+
+  <div *ngIf="afAuth.user | async as user; else showLogin">
+    <h1>Hello {{ user.displayName }}!</h1>
+
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">NOMBRE</th>
+          <th scope="col">AULA</th>
+          <th scope="col">GRUPO</th>
+          <th scope="col">LUN</th>
+          <th scope="col">MAR</th>
+          <th scope="col">MIE</th>
+          <th scope="col">JUE</th>
+          <th scope="col">VIE</th>
+          <th scope="col">SAB</th>
+          <th scope="col">DOM</th>
+          <th scope="col">Cupo</th>
+          <th scope="col">Opciones</th>
+          <th scope="col">Extra Cupo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ (asignatures | async ) }}
+        <tr *ngFor="let asignature of asignatures | async">
+          <td>{{asignature.name}}</td>
+          <td>{{asignature.course}}</td>
+          <td>{{asignature.group}}</td>
+          <td>{{renderHour(asignature,'LUN')}}</td>
+          <td>{{renderHour(asignature,'MAR')}}</td>
+          <td>{{renderHour(asignature,'MIE')}}</td>
+          <td>{{renderHour(asignature,'JUE')}}</td>
+          <td>{{renderHour(asignature,'VIE')}}</td>
+          <td>{{renderHour(asignature,'SAB')}}</td>
+          <td>{{renderHour(asignature,'DOM')}}</td>
+          <td>{{asignature.doISelected}}</td>
+          <td>
+            <span [ngClass]="{
+                'badge-success': asignature.CurrentQuota < asignature.MaxQuota,
+                'badge-danger':asignature.CurrentQuota === asignature.MaxQuota
+              }" class="badge badge-pill">{{asignature.CurrentQuota}} / {{asignature.MaxQuota}}</span>
+          </td>
+          <td>
+            <button *ngIf="!asignature.doISelected" (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
+            <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)" class="btn btn-outline-success">Desinscribir</button>
+          </td>
+          <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota">
+            <button class="btn btn-outline-warning">Solicitar</button>
+          </td>
+          <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
+            N/A
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <button class="btn btn-danger" (click)="logout()">Logout</button>
+  </div>
+  <ng-template #showLogin>
+    <p>Please login.</p>
+    <button class="btn btn-primary" (click)="login()">Login with Google</button>
+  </ng-template>
+
+
+</div>
