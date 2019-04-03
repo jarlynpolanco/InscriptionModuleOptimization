@@ -14,3 +14,16 @@ export class FilterSelectionPipe implements PipeTransform {
         return items.filter(item => item.doISelected);
     }
 }
+
+
+@Pipe({
+    name: 'sumcredits'
+})
+export class SumCreditsPipe implements PipeTransform {
+    transform(items: Asignature[]): any {
+        if (items == null) {
+            return [];
+        }
+        return items.map(a=>a.credits).reduce((a,b)=>a+b,0);
+    }
+}

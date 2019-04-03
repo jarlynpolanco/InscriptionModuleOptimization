@@ -14,6 +14,7 @@ export interface Asignature {
   name: string;
   users: string;
   doISelected: boolean;
+  credits: number;
 };
 export interface AsignatureId extends Asignature { id: string };
 export interface UserEnroll {

@@ -5,13 +5,17 @@
   <div *ngIf="afAuth.user | async as user; else showLogin">
     <h1>Hola {{ user.displayName }}!</h1>
 
-
+    <p>
+        <button class="btn btn-danger" (click)="logout()">Cerrar Sesion</button>
+    </p>
+   
     <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col">NOMBRE</th>
           <th scope="col">AULA</th>
           <th scope="col">GRUPO</th>
+          <th scope="col">CREDITOS</th>
           <th scope="col">LUN</th>
           <th scope="col">MAR</th>
           <th scope="col">MIE</th>
@@ -29,6 +33,7 @@
           <td>{{asignature.name}}</td>
           <td>{{asignature.course}}</td>
           <td>{{asignature.group}}</td>
+          <td>{{asignature.credits}}</td>
           <td>{{renderHour(asignature,'LUN')}}</td>
           <td>{{renderHour(asignature,'MAR')}}</td>
           <td>{{renderHour(asignature,'MIE')}}</td>
@@ -48,7 +53,7 @@
             <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)"
               class="btn btn-outline-success">Desinscribir</button>
           </td>
-          <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota">
+          <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected">
             <ngbd-modal-basic></ngbd-modal-basic>
           </td>
           <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
@@ -67,6 +72,7 @@
           <th scope="col">NOMBRE</th>
           <th scope="col">AULA</th>
           <th scope="col">GRUPO</th>
+          <th scope="col">CREDITOS</th>
           <th scope="col">HORARIO</th>
         </tr>
       </thead>
@@ -75,14 +81,15 @@
           <td>{{asignature.name}}</td>
           <td>{{asignature.course}}</td>
           <td>{{asignature.group}}</td>
+          <td>{{asignature.credits}}</td>
           <td>
             <div [innerHTML]="renderCalendar(asignature)"></div>
           </td>
         </tr>
       </tbody>
     </table>
-
-    <button class="btn btn-danger" (click)="logout()">Logout</button>
+    <span> Cantidad de Creditos Seleccionados {{asignatures | async | filterselection | sumcredits}} </span>
+    
   </div>
   <ng-template #showLogin>
     <p>Please login.</p>
