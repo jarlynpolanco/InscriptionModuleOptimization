@@ -5,15 +5,22 @@ import { environment } from '../environments/environment';
 import { AppComponent } from './app.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { FilterSelectionPipe } from './pipes/filterSelection.pipe';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { NgbdModalBasic } from './modal/modal-basic';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FilterSelectionPipe,
+    NgbdModalBasic
   ],
   imports: [
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]

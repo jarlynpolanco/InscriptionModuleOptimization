@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, of, forkJoin } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
@@ -12,8 +12,10 @@ export interface Asignature {
   course: string;
   group: string;
   name: string;
+  users: string;
+  doISelected: boolean;
 };
-export interface AsignatureId extends Asignature { id: string, doISelected: boolean };
+export interface AsignatureId extends Asignature { id: string };
 export interface UserEnroll {
   email: string
 };
@@ -23,8 +25,6 @@ export interface UserEnroll {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-
-  //asignatures: Observable<Array<Asignature>>;
 
   private emailUserLoggedIn: string;
   private asignaturesCollection: AngularFirestoreCollection<Asignature>;
@@ -36,13 +36,25 @@ export class AppComponent {
   ) {
     if (afAuth.user) {
       this.afAuth.user.subscribe((user) => {
-        this.emailUserLoggedIn = user.email;
-        this.loadAsignatures();
+        if (user !== null) {
+          this.emailUserLoggedIn = user.email;
+          this.loadAsignatures();
+        }
       });
     }
   }
-
-
+  renderCalendar = (asignature: Asignature): string => {
+    const days = asignature.Days.split('|');
+    const hours = asignature.Hours.split('|');
+    let result = '';
+    days.forEach((day, idx) => {
+      result += day + ' ' + hours[idx] + '<br>';
+    });
+    return result;
+  }
+  request(){
+    
+  }
   renderHour = (asignature: Asignature, day: string): string => {
     const days = asignature.Days.split('|');
     const hours = asignature.Hours.split('|');
@@ -50,54 +62,46 @@ export class AppComponent {
     return hours[days.findIndex(x => x == day)];
   }
 
-  /*return this.afs.collection('asignatures/' + id + '/users').valueChanges().subscribe((users: UserEnroll[]) => {
-              doISelected = typeof users.find(x => x['email'] === this.emailUserLoggedIn) !== 'undefined';
-
-              return of({ id, ...data, doISelected });
-            });*/
-
   loadAsignatures = (): void => {
 
     this.asignaturesCollection = this.afs.collection<Asignature>('asignatures');
+
     this.asignatures = this.asignaturesCollection.snapshotChanges()
       .pipe(
-        mergeMap(actions => {
-          const dt = actions.map(a => {
-            const data = a.payload.doc.data() as Asignature;
-            const id = a.payload.doc.id;
-            return { id: id, data: data };
-          });
-          return of(dt);
-        }),
-        mergeMap(asig => forkJoin(asig.map(d => this.afs.collection('asignatures/' + d.id + '/users')
-                                                    .valueChanges()
-                                                    .pipe(
-                                                      mergeMap((users: UserEnroll[]) => {
-                                                        const doISelected = typeof users.find(x => x['email'] === this.emailUserLoggedIn) !== 'undefined';
-                                                        return of({ id: d.id, ...d.data, doISelected: doISelected });
-                                                      }
-                                                    ))))));
-this.asignatures.subscribe(t => console.log(t));
-        // mergeMap(result =>  console.log(result));
-
-       /*,
-        mergeMap(data => )
-
-          return this.afs.collection('asignatures/' + id + '/users').valueChanges().subscribe((users: UserEnroll[]) => {
-              doISelected = typeof users.find(x => x['email'] === this.emailUserLoggedIn) !== 'undefined';
-
-              return of({ id, ...data, doISelected });
-            });*/
+        map(actions => actions.map(a => {
+          const data = a.payload.doc.data() as AsignatureId;
+          const id = a.payload.doc.id;
+          const doISelected = data.users.split('|').includes(this.emailUserLoggedIn);
+          return { id, ...data, doISelected };
+        }))
+      );
   }
+  unrollAsignature = (asignature: AsignatureId): void => {
+    const asignatureDoc: AngularFirestoreDocument<Asignature> = this.afs.doc<Asignature>('asignatures/' + asignature.id);
+    if (asignature.users.includes("|")) {
+      const usersEnrolled = asignature.users.split('|');
+      const indexToBeRemoved = usersEnrolled.findIndex(x => x === this.emailUserLoggedIn);
+      usersEnrolled.splice(indexToBeRemoved, 1);
+      asignature.users = usersEnrolled.length > 1 ? usersEnrolled.join("|") : usersEnrolled[0];
+    } else {
+      asignature.users = "";
+    }
 
+    asignature.CurrentQuota--;
+    asignatureDoc.update(asignature);
+  }
   enrollAsignature = (asignature: AsignatureId): void => {
-    console.log(asignature);
+    const asignatureDoc: AngularFirestoreDocument<Asignature> = this.afs.doc<Asignature>('asignatures/' + asignature.id);
+    let usersEnrolled = asignature.users !== "" ? asignature.users.split('|') : [];
+    usersEnrolled = [...usersEnrolled, this.emailUserLoggedIn];
+    asignature.users = usersEnrolled.length > 1 ? usersEnrolled.join("|") : usersEnrolled[0];
+    asignature.CurrentQuota++;
+    asignatureDoc.update(asignature);
   }
   login() {
     this.afAuth.auth.signInWithPopup(new auth.GoogleAuthProvider()).then((data: firebase.auth.UserCredential) => {
       this.emailUserLoggedIn = data.user.email;
       this.loadAsignatures();
-      console.log(data.user.email);
     });
   }
   logout() {

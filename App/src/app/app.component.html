@@ -3,10 +3,10 @@
   <h1 class="text-center">Seleccion de Asignaturas</h1>
 
   <div *ngIf="afAuth.user | async as user; else showLogin">
-    <h1>Hello {{ user.displayName }}!</h1>
+    <h1>Hola {{ user.displayName }}!</h1>
 
 
-    <table class="table">
+    <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col">NOMBRE</th>
@@ -25,7 +25,6 @@
         </tr>
       </thead>
       <tbody>
-        {{ (asignatures | async ) }}
         <tr *ngFor="let asignature of asignatures | async">
           <td>{{asignature.name}}</td>
           <td>{{asignature.course}}</td>
@@ -37,7 +36,6 @@
           <td>{{renderHour(asignature,'VIE')}}</td>
           <td>{{renderHour(asignature,'SAB')}}</td>
           <td>{{renderHour(asignature,'DOM')}}</td>
-          <td>{{asignature.doISelected}}</td>
           <td>
             <span [ngClass]="{
                 'badge-success': asignature.CurrentQuota < asignature.MaxQuota,
@@ -45,11 +43,13 @@
               }" class="badge badge-pill">{{asignature.CurrentQuota}} / {{asignature.MaxQuota}}</span>
           </td>
           <td>
-            <button *ngIf="!asignature.doISelected" (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
-            <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)" class="btn btn-outline-success">Desinscribir</button>
+            <button *ngIf="!asignature.doISelected && asignature.CurrentQuota < asignature.MaxQuota"
+              (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
+            <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)"
+              class="btn btn-outline-success">Desinscribir</button>
           </td>
           <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota">
-            <button class="btn btn-outline-warning">Solicitar</button>
+            <ngbd-modal-basic></ngbd-modal-basic>
           </td>
           <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
             N/A
@@ -58,6 +58,29 @@
       </tbody>
     </table>
 
+
+    <h2 class="text-center">Asignaturas Seleccionadas</h2>
+
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">NOMBRE</th>
+          <th scope="col">AULA</th>
+          <th scope="col">GRUPO</th>
+          <th scope="col">HORARIO</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let asignature of asignatures | async | filterselection">
+          <td>{{asignature.name}}</td>
+          <td>{{asignature.course}}</td>
+          <td>{{asignature.group}}</td>
+          <td>
+            <div [innerHTML]="renderCalendar(asignature)"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <button class="btn btn-danger" (click)="logout()">Logout</button>
   </div>
