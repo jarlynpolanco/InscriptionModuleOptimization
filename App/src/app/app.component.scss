@@ -21,17 +21,18 @@ body {
   }
 
   i {
-     font-size: 30px;
-     margin-right: 16px;
+    font-size: 30px;
+    margin-right: 16px;
   }
 }
 
 .dropdown-menu {
   width: 100%;
-  
+
   .dropdown-item {
     display: block;
     text-align: center;
+
     &:hover {
       background: transparent;
     }
@@ -41,8 +42,15 @@ body {
 .container-fluid {
   margin-top: 80px;
   padding: 36px 16px;
+
   h4 {
     margin-bottom: 24px;
+  }
+}
+
+.table {
+  td {
+    vertical-align: middle;
   }
 }
 
