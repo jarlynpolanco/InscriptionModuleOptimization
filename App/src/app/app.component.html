@@ -1,103 +1,125 @@
+<nav class="navbar fixed-top navbar-dark bg-dark" *ngIf="afAuth.user | async as user; else showLogin">
+  <a class="navbar-brand" href="#">
+    <img src="assets/imgs/mortarboard.svg" width="30" height="30" class="d-inline-block align-top" alt="" />
+    Selección de Asignaturas
+  </a>
+
+  <div class="dropdown navbar-user">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+      aria-haspopup="true" aria-expanded="false">
+      <i class="fas fa-user-circle"></i>
+      Hola, {{ user.displayName }}!
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+      <button class="dropdown-item" type="button" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+</nav>
+
 <div class="container-fluid">
-
-  <h1 class="text-center">Seleccion de Asignaturas</h1>
-
   <div *ngIf="afAuth.user | async as user; else showLogin">
-    <h1>Hola {{ user.displayName }}!</h1>
 
-    <p>
-        <button class="btn btn-danger" (click)="logout()">Cerrar Sesion</button>
-    </p>
-   
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">NOMBRE</th>
-          <th scope="col">AULA</th>
-          <th scope="col">GRUPO</th>
-          <th scope="col">CREDITOS</th>
-          <th scope="col">LUN</th>
-          <th scope="col">MAR</th>
-          <th scope="col">MIE</th>
-          <th scope="col">JUE</th>
-          <th scope="col">VIE</th>
-          <th scope="col">SAB</th>
-          <th scope="col">DOM</th>
-          <th scope="col">Cupo</th>
-          <th scope="col">Opciones</th>
-          <th scope="col">Extra Cupo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let asignature of asignatures | async">
-          <td>{{asignature.name}}</td>
-          <td>{{asignature.course}}</td>
-          <td>{{asignature.group}}</td>
-          <td>{{asignature.credits}}</td>
-          <td>{{renderHour(asignature,'LUN')}}</td>
-          <td>{{renderHour(asignature,'MAR')}}</td>
-          <td>{{renderHour(asignature,'MIE')}}</td>
-          <td>{{renderHour(asignature,'JUE')}}</td>
-          <td>{{renderHour(asignature,'VIE')}}</td>
-          <td>{{renderHour(asignature,'SAB')}}</td>
-          <td>{{renderHour(asignature,'DOM')}}</td>
-          <td>
-            <span [ngClass]="{
+    <section class="subject-to-select">
+      <h4>Asignaturas disponibles</h4>
+
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">NOMBRE</th>
+            <th scope="col">AULA</th>
+            <th scope="col">GRUPO</th>
+            <th scope="col">CREDITOS</th>
+            <th scope="col">LUN</th>
+            <th scope="col">MAR</th>
+            <th scope="col">MIE</th>
+            <th scope="col">JUE</th>
+            <th scope="col">VIE</th>
+            <th scope="col">SAB</th>
+            <th scope="col">DOM</th>
+            <th scope="col">Cupo</th>
+            <th scope="col">Opciones</th>
+            <th scope="col">Extra Cupo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let asignature of asignatures | async">
+            <td>{{asignature.name}}</td>
+            <td>{{asignature.course}}</td>
+            <td>{{asignature.group}}</td>
+            <td>{{asignature.credits}}</td>
+            <td>{{renderHour(asignature,'LUN')}}</td>
+            <td>{{renderHour(asignature,'MAR')}}</td>
+            <td>{{renderHour(asignature,'MIE')}}</td>
+            <td>{{renderHour(asignature,'JUE')}}</td>
+            <td>{{renderHour(asignature,'VIE')}}</td>
+            <td>{{renderHour(asignature,'SAB')}}</td>
+            <td>{{renderHour(asignature,'DOM')}}</td>
+            <td>
+              <span [ngClass]="{
                 'badge-success': asignature.CurrentQuota < asignature.MaxQuota,
                 'badge-danger':asignature.CurrentQuota === asignature.MaxQuota
               }" class="badge badge-pill">{{asignature.CurrentQuota}} / {{asignature.MaxQuota}}</span>
-          </td>
-          <td>
-            <button *ngIf="!asignature.doISelected && asignature.CurrentQuota < asignature.MaxQuota"
-              (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
-            <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)"
-              class="btn btn-outline-success">Desinscribir</button>
-          </td>
-          <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected">
-            <ngbd-modal-basic 
-            [Email]="emailUserLoggedIn"
-            [Asignature]="asignature"
-            [IsDisabled]=asignature.doIRequested></ngbd-modal-basic>
-          </td>
-          <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
-            N/A
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+            <td>
+              <button *ngIf="!asignature.doISelected && asignature.CurrentQuota < asignature.MaxQuota"
+                (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
+              <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)"
+                class="btn btn-outline-success">Desinscribir</button>
+            </td>
+            <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected">
+              <ngbd-modal-basic [Email]="emailUserLoggedIn" [Asignature]="asignature"
+                [IsDisabled]=asignature.doIRequested></ngbd-modal-basic>
+            </td>
+            <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
+              N/A
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
+    <section class="selected-subjects">
+      <h4>Asignaturas seleccionadas</h4>
 
-    <h2 class="text-center">Asignaturas Seleccionadas</h2>
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">NOMBRE</th>
+            <th scope="col">AULA</th>
+            <th scope="col">GRUPO</th>
+            <th scope="col">CREDITOS</th>
+            <th scope="col">HORARIO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let asignature of asignatures | async | filterselection">
+            <td>{{asignature.name}}</td>
+            <td>{{asignature.course}}</td>
+            <td>{{asignature.group}}</td>
+            <td>{{asignature.credits}}</td>
+            <td>
+              <div [innerHTML]="renderCalendar(asignature)"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <span><strong>Cantidad de Creditos Seleccionados:</strong> {{asignatures | async | filterselection | sumcredits}} </span>
+    </section>
 
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">NOMBRE</th>
-          <th scope="col">AULA</th>
-          <th scope="col">GRUPO</th>
-          <th scope="col">CREDITOS</th>
-          <th scope="col">HORARIO</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let asignature of asignatures | async | filterselection">
-          <td>{{asignature.name}}</td>
-          <td>{{asignature.course}}</td>
-          <td>{{asignature.group}}</td>
-          <td>{{asignature.credits}}</td>
-          <td>
-            <div [innerHTML]="renderCalendar(asignature)"></div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <span> Cantidad de Creditos Seleccionados {{asignatures | async | filterselection | sumcredits}} </span>
-    
   </div>
-  <ng-template #showLogin>
-    <p>Please login.</p>
-    <button class="btn btn-primary" (click)="login()">Login with Google</button>
-  </ng-template>
-
-
 </div>
+
+<ng-template #showLogin>
+  <section class="login__content">
+    <div class="login__buttons">
+      <img class="login__logo" src="assets/imgs/mortarboard.svg" alt="">
+      <br />
+      <h4>Selección de Asignaturas</h4>
+
+      <button class="btn btn-danger btn-lg" (click)="login()">
+        <img class="login_google" src="./assets/imgs/google.png" alt="">
+        Login with Google
+      </button>
+    </div>
+  </section>
+</ng-template>

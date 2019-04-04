@@ -1,0 +1,99 @@
+body {
+  color: var(--gray);
+}
+
+.navbar {
+  height: 80px;
+}
+
+.navbar-brand {
+  img {
+    margin-right: 16px;
+  }
+}
+
+.navbar-user {
+  color: white;
+
+  button {
+    align-items: center;
+    display: flex;
+  }
+
+  i {
+     font-size: 30px;
+     margin-right: 16px;
+  }
+}
+
+.dropdown-menu {
+  width: 100%;
+  
+  .dropdown-item {
+    display: block;
+    text-align: center;
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+.container-fluid {
+  margin-top: 80px;
+  padding: 36px 16px;
+  h4 {
+    margin-bottom: 24px;
+  }
+}
+
+.subject-to-select {
+  margin: 0 0 48px;
+}
+
+.selected-subjects {
+  margin: 48px 0;
+}
+
+.login__content {
+  background: var(--white);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.login__buttons {
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, .16);
+  color: var(--gray);
+  margin: 0 auto;
+  max-width: 350px;
+  padding: 36px;
+  text-align: center;
+  width: 40%;
+
+  h4 {
+    margin-top: -24px;
+    margin-bottom: 36px
+  }
+
+  .btn-danger {
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+  }
+}
+
+.login__logo {
+  width: 150px;
+}
+
+.login_google {
+  margin-right: 8px;
+  width: 20px;
+}
