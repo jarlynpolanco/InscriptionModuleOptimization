@@ -54,7 +54,10 @@
               class="btn btn-outline-success">Desinscribir</button>
           </td>
           <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected">
-            <ngbd-modal-basic></ngbd-modal-basic>
+            <ngbd-modal-basic 
+            [Email]="emailUserLoggedIn"
+            [Asignature]="asignature"
+            [IsDisabled]=asignature.doIRequested></ngbd-modal-basic>
           </td>
           <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
             N/A

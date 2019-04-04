@@ -16,11 +16,11 @@
         </form>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Solicitar</button>
+        <button type="button" class="btn btn-outline-dark" (click)="NotifyRequest();modal.close('Save click');">Solicitar</button>
     </div>
 </ng-template>
 
-<button class="btn btn-outline-warning" (click)="open(content)">Solicitar</button>
+<button [disabled]="IsDisabled" class="btn btn-outline-warning" (click)="open(content)">Solicitar</button>
 
 <hr>
 

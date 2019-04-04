@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Observable, of, forkJoin } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
-import { map, mergeMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 export interface Asignature {
   CurrentQuota: number;
   Days: string;
@@ -13,7 +13,9 @@ export interface Asignature {
   group: string;
   name: string;
   users: string;
+  usersRequesting: string;
   doISelected: boolean;
+  doIRequested: boolean;
   credits: number;
 };
 export interface AsignatureId extends Asignature { id: string };
@@ -53,13 +55,13 @@ export class AppComponent {
     });
     return result;
   }
-  request(){
-    
+  request() {
+
   }
   renderHour = (asignature: Asignature, day: string): string => {
     const days = asignature.Days.split('|');
     const hours = asignature.Hours.split('|');
-    if (!days.includes(day)) return 'N/A';
+    if (!days.includes(day)) return '';
     return hours[days.findIndex(x => x == day)];
   }
 
@@ -73,7 +75,8 @@ export class AppComponent {
           const data = a.payload.doc.data() as AsignatureId;
           const id = a.payload.doc.id;
           const doISelected = data.users.split('|').includes(this.emailUserLoggedIn);
-          return { id, ...data, doISelected };
+          const doIRequested = data.usersRequesting.split('|').includes(this.emailUserLoggedIn);
+          return { id, ...data, doISelected, doIRequested };
         }))
       );
   }
