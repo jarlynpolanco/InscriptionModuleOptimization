@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
 import { map } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+import { FilterSelectionPipe, SumCreditsPipe } from './pipes/filterSelection.pipe';
 export interface Asignature {
   CurrentQuota: number;
   Days: string;
@@ -29,13 +31,17 @@ export interface UserEnroll {
 })
 export class AppComponent {
 
+  private maxCredits: number = 25;
   private emailUserLoggedIn: string;
+  private asignaturesSubscription: Subscription;
   private asignaturesCollection: AngularFirestoreCollection<Asignature>;
   asignatures: Observable<AsignatureId[]>;
+  asignaturesArr: AsignatureId[];
 
   constructor(
     private afs: AngularFirestore,
-    public afAuth: AngularFireAuth
+    public afAuth: AngularFireAuth,
+    public toast: ToastrService
   ) {
     if (afAuth.user) {
       this.afAuth.user.subscribe((user) => {
@@ -55,9 +61,7 @@ export class AppComponent {
     });
     return result;
   }
-  request() {
 
-  }
   renderHour = (asignature: Asignature, day: string): string => {
     const days = asignature.Days.split('|');
     const hours = asignature.Hours.split('|');
@@ -65,11 +69,8 @@ export class AppComponent {
     return hours[days.findIndex(x => x == day)];
   }
 
-  loadAsignatures = (): void => {
-
-    this.asignaturesCollection = this.afs.collection<Asignature>('asignatures');
-
-    this.asignatures = this.asignaturesCollection.snapshotChanges()
+  getAsignaturesSnapshot() {
+    return this.asignaturesCollection.snapshotChanges()
       .pipe(
         map(actions => actions.map(a => {
           const data = a.payload.doc.data() as AsignatureId;
@@ -79,6 +80,11 @@ export class AppComponent {
           return { id, ...data, doISelected, doIRequested };
         }))
       );
+  }
+
+  loadAsignatures = (): void => {
+    this.asignaturesCollection = this.afs.collection<Asignature>('asignatures');
+    this.asignatures = this.getAsignaturesSnapshot();
   }
   unrollAsignature = (asignature: AsignatureId): void => {
     const asignatureDoc: AngularFirestoreDocument<Asignature> = this.afs.doc<Asignature>('asignatures/' + asignature.id);
@@ -93,14 +99,91 @@ export class AppComponent {
 
     asignature.CurrentQuota--;
     asignatureDoc.update(asignature);
+    this.toast.info(`La asignatura ${asignature.name} fue eliminada`);
+  }
+  intersectTime(x1, x2, y1, y2) {
+    return x1 < y2 && y1 < x2;
+  }
+  Intersection(array1: any[], array2: any[]): any[] {
+    let result: any[] = [];
+    let dict: {} = {};
+    for (let el of array1) {
+      if (!(el in dict)) {
+        dict[el] = 1;
+      }
+    }
+
+    for (let el of array2) {
+      if (el in dict && result.indexOf(el) === -1) {
+        result.push(el);
+      }
+    }
+    return result;
+  };
+  CanITakeMoreCredits = (asignatureBeingSelected: AsignatureId): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.asignaturesSubscription = this.getAsignaturesSnapshot().subscribe((data) => {
+        const totalCurrentCredits = new SumCreditsPipe().transform(new FilterSelectionPipe().transform(data));
+        if ((asignatureBeingSelected.credits + totalCurrentCredits) <= this.maxCredits) {
+          resolve();
+        }
+        reject();
+      });
+    });
+  }
+  AsignaturesDontCollide = (asignatureBeingSelected: AsignatureId): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      this.asignaturesSubscription = this.getAsignaturesSnapshot().subscribe((data) => {
+        const daysAsignatureBeingSelected = asignatureBeingSelected.Days.split('|');
+        const hoursAsignatureBeingSelected = asignatureBeingSelected.Hours.split('|');
+        const myAsignatures = new FilterSelectionPipe().transform(data);
+
+        myAsignatures.forEach((myAsignature) => {
+          const days = myAsignature.Days.split('|');
+          const hours = myAsignature.Hours.split('|');
+          const DaysIntersecting = this.Intersection(daysAsignatureBeingSelected, days);
+          if (DaysIntersecting.length > 0) {
+            DaysIntersecting.forEach((dayInsertected) => {
+              const hourByDayIntersected: string = hours[days.findIndex(x => x == dayInsertected)];
+              const hourBeingSelectedByDay = hoursAsignatureBeingSelected[daysAsignatureBeingSelected.findIndex(x => x == dayInsertected)];
+              const InitialHourOnlyByDayIntersected = hourByDayIntersected.split('-')[0];
+              const FinalHourOnlyByDayIntersected = hourByDayIntersected.split('-')[1];
+              const InitialHourOnlyByDayBeingSelected = hourBeingSelectedByDay.split('-')[0];
+              const FinalHourOnlyByDayBeingSelected = hourBeingSelectedByDay.split('-')[1];
+              if (this.intersectTime(InitialHourOnlyByDayIntersected, FinalHourOnlyByDayIntersected,
+                InitialHourOnlyByDayBeingSelected, FinalHourOnlyByDayBeingSelected)) {
+                reject(myAsignature);
+                return;
+              }
+            });
+          }
+        });
+        resolve();
+      });
+    });
   }
   enrollAsignature = (asignature: AsignatureId): void => {
-    const asignatureDoc: AngularFirestoreDocument<Asignature> = this.afs.doc<Asignature>('asignatures/' + asignature.id);
-    let usersEnrolled = asignature.users !== "" ? asignature.users.split('|') : [];
-    usersEnrolled = [...usersEnrolled, this.emailUserLoggedIn];
-    asignature.users = usersEnrolled.length > 1 ? usersEnrolled.join("|") : usersEnrolled[0];
-    asignature.CurrentQuota++;
-    asignatureDoc.update(asignature);
+    this.AsignaturesDontCollide(asignature).then(() => {
+      this.asignaturesSubscription.unsubscribe();
+
+      this.CanITakeMoreCredits(asignature).then(() => {
+        this.asignaturesSubscription.unsubscribe();
+        const asignatureDoc: AngularFirestoreDocument<Asignature> = this.afs.doc<Asignature>('asignatures/' + asignature.id);
+        let usersEnrolled = asignature.users !== "" ? asignature.users.split('|') : [];
+        usersEnrolled = [...usersEnrolled, this.emailUserLoggedIn];
+        asignature.users = usersEnrolled.length > 1 ? usersEnrolled.join("|") : usersEnrolled[0];
+        asignature.CurrentQuota++;
+        asignatureDoc.update(asignature);
+        this.toast.success(`La asignatura ${asignature.name} fue agregada`);
+      }).catch(() => {
+        this.asignaturesSubscription.unsubscribe();
+        this.toast.error(`Límite de crédito alcanzado`);
+      });
+
+    }).catch((myAsignature: AsignatureId) => {
+      this.asignaturesSubscription.unsubscribe();
+      this.toast.warning(`La asignatura ${myAsignature.name} colisiona con ${asignature.name}`);
+    });
   }
   login() {
     this.afAuth.auth.signInWithPopup(new auth.GoogleAuthProvider()).then((data: firebase.auth.UserCredential) => {

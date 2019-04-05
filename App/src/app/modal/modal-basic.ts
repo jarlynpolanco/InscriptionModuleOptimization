@@ -10,8 +10,6 @@ import { AngularFirestoreDocument, AngularFirestore } from '@angular/fire/firest
 })
 export class NgbdModalBasic implements OnInit{
   ngOnInit(){
-    console.log(this.Email);
-    console.log(this.Asignature);
   }
   @Input()
   public IsDisabled:boolean;

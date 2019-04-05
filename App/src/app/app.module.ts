@@ -8,7 +8,9 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { FilterSelectionPipe, SumCreditsPipe } from './pipes/filterSelection.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalBasic } from './modal/modal-basic';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+ 
+import { ToastrModule } from 'ngx-toastr';
 @NgModule({
   declarations: [
     AppComponent,
@@ -18,8 +20,10 @@ import { NgbdModalBasic } from './modal/modal-basic';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
+    ToastrModule.forRoot(), // ToastrModule added
     AngularFireAuthModule,
     NgbModule
   ],

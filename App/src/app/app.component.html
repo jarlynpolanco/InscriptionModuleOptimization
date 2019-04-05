@@ -1,7 +1,7 @@
 <nav class="navbar fixed-top navbar-dark bg-dark" *ngIf="afAuth.user | async as user; else showLogin">
   <a class="navbar-brand" href="#">
     <img src="assets/imgs/mortarboard.svg" width="30" height="30" class="d-inline-block align-top" alt="" />
-      Módulo Inscripción de Asignaturas
+    Módulo Inscripción de Asignaturas
   </a>
 
   <div class="dropdown navbar-user">
@@ -38,7 +38,6 @@
             <th scope="col">DOM</th>
             <th scope="col">Cupo</th>
             <th scope="col">Opciones</th>
-            <th scope="col">Extra Cupo</th>
           </tr>
         </thead>
         <tbody>
@@ -62,16 +61,13 @@
             </td>
             <td>
               <button *ngIf="!asignature.doISelected && asignature.CurrentQuota < asignature.MaxQuota"
-                (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Inscribir</button>
+                (click)="enrollAsignature(asignature)" class="btn btn-outline-success">Agregar</button>
               <button *ngIf="asignature.doISelected" (click)="unrollAsignature(asignature)"
-                class="btn btn-outline-success">Desinscribir</button>
-            </td>
-            <td *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected">
-              <ngbd-modal-basic [Email]="emailUserLoggedIn" [Asignature]="asignature"
-                [IsDisabled]=asignature.doIRequested></ngbd-modal-basic>
-            </td>
-            <td *ngIf="asignature.CurrentQuota !== asignature.MaxQuota">
-              N/A
+                class="btn btn-outline-success">Eliminar</button>
+
+              <ngbd-modal-basic *ngIf="asignature.CurrentQuota === asignature.MaxQuota && !asignature.doISelected"
+                [Email]="emailUserLoggedIn" [Asignature]="asignature" [IsDisabled]=asignature.doIRequested>
+              </ngbd-modal-basic>
             </td>
           </tr>
         </tbody>
@@ -103,7 +99,8 @@
           </tr>
         </tbody>
       </table>
-      <span><strong>Cantidad de Créditos Seleccionados:</strong> {{asignatures | async | filterselection | sumcredits}} </span>
+      <span><strong>Cantidad de Créditos Seleccionados:</strong> {{asignatures | async | filterselection | sumcredits}}
+      </span>
     </section>
 
   </div>
