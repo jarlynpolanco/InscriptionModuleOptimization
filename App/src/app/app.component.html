@@ -1,7 +1,7 @@
 <nav class="navbar fixed-top navbar-dark bg-dark" *ngIf="afAuth.user | async as user; else showLogin">
   <a class="navbar-brand" href="#">
     <img src="assets/imgs/mortarboard.svg" width="30" height="30" class="d-inline-block align-top" alt="" />
-    Selección de Asignaturas
+      Módulo Inscripción de Asignaturas
   </a>
 
   <div class="dropdown navbar-user">
@@ -103,7 +103,7 @@
           </tr>
         </tbody>
       </table>
-      <span><strong>Cantidad de Creditos Seleccionados:</strong> {{asignatures | async | filterselection | sumcredits}} </span>
+      <span><strong>Cantidad de Créditos Seleccionados:</strong> {{asignatures | async | filterselection | sumcredits}} </span>
     </section>
 
   </div>
@@ -114,11 +114,11 @@
     <div class="login__buttons">
       <img class="login__logo" src="assets/imgs/mortarboard.svg" alt="">
       <br />
-      <h4>Selección de Asignaturas</h4>
+      <h4>Módulo Inscripción de Asignaturas UNAPEC</h4>
 
       <button class="btn btn-danger btn-lg" (click)="login()">
         <img class="login_google" src="./assets/imgs/google.png" alt="">
-        Login with Google
+        Inicia sesión con google
       </button>
     </div>
   </section>
