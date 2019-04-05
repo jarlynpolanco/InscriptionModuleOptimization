@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, Observer } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
 import { map } from 'rxjs/operators';
@@ -81,7 +81,6 @@ export class AppComponent {
         }))
       );
   }
-
   loadAsignatures = (): void => {
     this.asignaturesCollection = this.afs.collection<Asignature>('asignatures');
     this.asignatures = this.getAsignaturesSnapshot();

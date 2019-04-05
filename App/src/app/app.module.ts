@@ -9,7 +9,6 @@ import { FilterSelectionPipe, SumCreditsPipe } from './pipes/filterSelection.pip
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgbdModalBasic } from './modal/modal-basic';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
- 
 import { ToastrModule } from 'ngx-toastr';
 @NgModule({
   declarations: [
@@ -27,7 +26,8 @@ import { ToastrModule } from 'ngx-toastr';
     AngularFireAuthModule,
     NgbModule
   ],
-  providers: [],
+  providers: [
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

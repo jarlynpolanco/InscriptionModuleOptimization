@@ -41,7 +41,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let asignature of asignatures | async">
+          <tr *ngFor="let asignature of asignatures | async; let i = index">
             <td>{{asignature.name}}</td>
             <td>{{asignature.course}}</td>
             <td>{{asignature.group}}</td>
@@ -57,7 +57,9 @@
               <span [ngClass]="{
                 'badge-success': asignature.CurrentQuota < asignature.MaxQuota,
                 'badge-danger':asignature.CurrentQuota === asignature.MaxQuota
-              }" class="badge badge-pill">{{asignature.CurrentQuota}} / {{asignature.MaxQuota}}</span>
+              }" class="badge badge-pill"> 
+              {{asignature.CurrentQuota}}
+              / {{asignature.MaxQuota}}</span>
             </td>
             <td>
               <button *ngIf="!asignature.doISelected && asignature.CurrentQuota < asignature.MaxQuota"
